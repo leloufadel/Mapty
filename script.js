@@ -10,10 +10,10 @@ const inputDistance = document.querySelector('.form__input--distance');
 const inputDuration = document.querySelector('.form__input--duration');
 const inputCadence = document.querySelector('.form__input--cadence');
 const inputElevation = document.querySelector('.form__input--elevation');
-
+let speed;
 class Workout {
    date = new Date();
-    id = new Date() + ('').slice(-10);
+    id = (Date.now() + ('').slice(-10));
 
     constructor(distance, duration, coords){
     this.distance = distance;
@@ -27,20 +27,34 @@ class Running extends Workout{
 
     super(distance, duration, coords) 
     this.cadence = cadence;
-
+    this.pace();
     }
+    pace(){
+        //min/km
+        this.pace = this.duration / this.distance;
+    }
+    
 }
 class Cycling extends Workout{ 
         constructor(distance, duration, coords, elevationGain){
 
     super(distance, duration, elevationGain) 
     this.elevationGain = elevationGain;
-    
+    this.calcspeed();
+
+    }
+    calcspeed(){
+        //min/km
+        this.speed = this.distance / (this.duration/60);
+        return speed;
     }
 }
 
+const run1 = new Running(39, -12, 5.2, 24, 178);
+const cycling1 = new Cycling([39, -12], 5.2, 24, 178);
+ console.log(run1, cycling1)
 
-
+/////////////////////////////////////////////////////
 class App {
     #map; 
     #mapEvent
@@ -90,7 +104,27 @@ navigator.geolocation.getCurrentPosition(this._loadMap.bind(this), function(){
     
     }
     _newWorkout(e) {
+        const validInputs = (...inputs) => inputs.every(inp => Number.isFinite(inp));
+        const allPositives = (...inputs) => inputs.every(inp => inp > 0)
         e.preventDefault();
+      const type = inputType.value;
+      const distance = +inputDistance.value;
+      const duration = +inputDuration.value;
+
+      // if workout running , create running Object
+if(type === 'running'){
+    const cadence = +inputCadence.value;
+    if(!validInputs(distance, duration, cadence) || !allPositives(distance, duration, cadence))
+     return alert('Inputs have to be a Positive Number')
+}
+      // if workout cycling, create cycling Object
+      if(type === 'cycling'){
+
+        const elevation = +inputElevation.value;
+        if(!validInputs(distance, duration, elevation) || !allPositives(distance, duration, elevation))
+     return alert('Inputs have to be a Positive Number')
+
+    }
         // clear fields: 
         inputElevation.value = inputCadence.value = inputDistance.value = inputDuration.value = '';
       
