@@ -11,14 +11,31 @@ const inputDuration = document.querySelector('.form__input--duration');
 const inputCadence = document.querySelector('.form__input--cadence');
 const inputElevation = document.querySelector('.form__input--elevation');
 
-class workout {
+class Workout {
    date = new Date();
     id = new Date() + ('').slice(-10);
-    
+
     constructor(distance, duration, coords){
     this.distance = distance;
     this.duration = duration;
     this.coords = coords;
+    }
+}
+
+class Running extends Workout{ 
+    constructor(distance, duration, coords, cadence){
+
+    super(distance, duration, coords) 
+    this.cadence = cadence;
+
+    }
+}
+class Cycling extends Workout{ 
+        constructor(distance, duration, coords, elevationGain){
+
+    super(distance, duration, elevationGain) 
+    this.elevationGain = elevationGain;
+    
     }
 }
 
