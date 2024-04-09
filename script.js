@@ -50,26 +50,33 @@ class Cycling extends Workout {
         return this.speed;
     }
 }
+// APPLICATION ARCHITECTURE
+const form = document.querySelector('.form');
+const containerWorkouts = document.querySelector('.workouts');
+const inputType = document.querySelector('.form__input--type');
+const inputDistance = document.querySelector('.form__input--distance');
+const inputDuration = document.querySelector('.form__input--duration');
+const inputCadence = document.querySelector('.form__input--cadence');
+const inputElevation = document.querySelector('.form__input--elevation');
+
+
 
 class App {
     #map;
+    #mapZoomLevel = 13;
     #mapEvent;
     #workouts = [];
+   
 
     constructor() {
         this._getPosition();
-
-        this.form = document.querySelector('.form');
-        this.inputType = document.querySelector('.form__input--type');
-        this.inputDistance = document.querySelector('.form__input--distance');
-        this.inputDuration = document.querySelector('.form__input--duration');
-        this.inputCadence = document.querySelector('.form__input--cadence');
-        this.inputElevation = document.querySelector('.form__input--elevation');
-
        
 
-        this.form.addEventListener('submit', this._newWorkout.bind(this));
-        this.inputType.addEventListener('change', this._toggleElevationField.bind(this));
+        form.addEventListener('submit', this._newWorkout.bind(this));
+        inputType.addEventListener('change', this._toggleElevationField.bind(this));
+
+        containerWorkouts.addEventListener('click', this._moveToPopup.bind(this));
+
     }
 
 
@@ -82,23 +89,6 @@ class App {
             }
           );
       }
-    
-    // _loadMap(position) {
-    //     const { latitude, longitude } = position.coords;
-    //     const coords = [latitude, longitude];
-
-    //     this.#map = L.map('map').setView(coords, 13);
-
-    //     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    //         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-    //     }).addTo(this.#map);
-    //                   // Handling clicks on map
-    //     this.#map.on('click', this._showForm.bind(this));
-
-    //     this.#workouts.forEach(work => {
-    //         this._renderWorkoutMarker(work);
-    //       });
-    // }
     
   _loadMap(position) {
     const { latitude } = position.coords;
@@ -125,8 +115,8 @@ class App {
 
     _showForm(mapE) {
         this.#mapEvent = mapE;
-        this.form.classList.remove('hidden');
-        this.inputDistance.focus();
+        form.classList.remove('hidden');
+        inputDistance.focus();
     }
     
   _hideForm() {
@@ -147,9 +137,9 @@ class App {
     _newWorkout(e) {
         e.preventDefault();
 
-        const type = this.inputType.value;
-        const distance = +this.inputDistance.value;
-        const duration = +this.inputDuration.value;
+        const type = inputType.value;
+        const distance = +inputDistance.value;
+        const duration = +inputDuration.value;
         const { lat, lng } = this.#mapEvent.latlng;
 
         if (!distance || !duration || !lat || !lng) {
@@ -158,10 +148,10 @@ class App {
 
         let workout;
         if (type === 'running') {
-            const cadence = +this.inputCadence.value;
+            const cadence = +inputCadence.value;
             workout = new Running(distance, duration, [lat, lng], cadence);
         } else if (type === 'cycling') {
-            const elevation = +this.inputElevation.value;
+            const elevation = +inputElevation.value;
             workout = new Cycling(distance, duration, [lat, lng], elevation);
         }
 
@@ -245,8 +235,30 @@ class App {
           </div>
         </li>
         `;
-        this.form.insertAdjacentHTML('afterend', html);
+        form.insertAdjacentHTML('afterend', html);
 
 }
+
+_moveToPopup(e) {
+    
+    const workoutEl = e.target.closest('.workout');
+
+    if (!workoutEl) return;
+
+    const workout = this.#workouts.find(
+      work => work.id === workoutEl.dataset.id
+    );
+    console.log(workout);
+
+    this.#map.setView(workout.coords, this.#mapZoomLevel, {
+      animate: true,
+      pan: {
+        duration: 1,
+      },
+    });
+
+   
+  }
+
 }
 const app = new App();
