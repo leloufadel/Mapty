@@ -58,7 +58,7 @@ const inputDistance = document.querySelector('.form__input--distance');
 const inputDuration = document.querySelector('.form__input--duration');
 const inputCadence = document.querySelector('.form__input--cadence');
 const inputElevation = document.querySelector('.form__input--elevation');
-
+const reset = document.querySelector('.reset');
 
 
 class App {
@@ -70,12 +70,14 @@ class App {
 
     constructor() {
         this._getPosition();
-       
+       // Get data from local storage
+         this._getLocalStorage();
 
+       // attach event handlers;
         form.addEventListener('submit', this._newWorkout.bind(this));
         inputType.addEventListener('change', this._toggleElevationField.bind(this));
-
         containerWorkouts.addEventListener('click', this._moveToPopup.bind(this));
+        reset.addEventListener('click', this._resetWorkout.bind(this));
 
     }
 
@@ -259,6 +261,27 @@ _moveToPopup(e) {
 
    
   }
+  _setLocalStorage() {
+    localStorage.setItem('workouts', JSON.stringify(this.#workouts));
+  }
+
+  _getLocalStorage() {
+    const data = JSON.parse(localStorage.getItem('workouts'));
+
+    if (!data) return;
+
+    this.#workouts = data;
+
+    this.#workouts.forEach(work => {
+      this._renderWorkout(work);
+    });
+  }
+
+//   reset() {
+//     localStorage.removeItem('workouts');
+//     location.reload();
+//     console.log('hi')
+//   }
 
 }
 const app = new App();
